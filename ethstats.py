@@ -31,7 +31,7 @@ class ethstats:
 
         ts=time.time()
         if self.interface == "all":
-            return d
+            return d, ts
         
         return  {self.interface:d[self.interface]}, ts
 
