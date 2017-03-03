@@ -17,7 +17,7 @@ class ethstats:
         self.period = vars(options)['PERIOD']
         self.interfaces = vars(options)['INTERFACE']
 
-    def read_stats(self, interfaces):
+    def read_stats(self):
         d= {}
         l= []
         with open('/proc/net/dev') as f:
@@ -27,11 +27,13 @@ class ethstats:
                 l= line.split()
                 d[l[0].rstrip(':')]=l[1:]
 
-        return(d[self.interfaces])
+        return(d)
 #            interface = {line.split(":") for line in lines}
 #            data=[x.split() for x in rez]
     
 stats=ethstats()
-print(stats.read_stats(vars(options)['INTERFACE']))
+#print(stats.read_stats(vars(options)['INTERFACE']))
+print(stats.read_stats())
+
 #    def count_stats():
 
