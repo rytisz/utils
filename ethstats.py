@@ -17,7 +17,7 @@ class ethstats:
     def __init__(self):
         self.period = int( vars(options)['PERIOD'])
         self.interface = vars(options)['INTERFACE']
-        self.previous= self.__read_stats()
+        self.previous, self.pts = self.__read_stats()
 
     def __read_stats(self):
         d= {}
@@ -27,23 +27,26 @@ class ethstats:
             next(f)
             for line in f:
                 l= line.split()
-                d[l[0].rstrip(':')]=l[1:]
+                d[l[0].rstrip(':')]=list(map(int,l[1:]))
+
+        ts=time.time()
         if self.interface == "all":
             return d
         
-        return  {self.interface:d[self.interface]}
+        return  {self.interface:d[self.interface]}, ts
 
     def get(self):
-        current= self.__read_stats()
+        current, cts = self.__read_stats()
+        print (cts-self.pts)
         rez={}
         for interface in current:
-            rx=(int(current[interface][0]) - int(self.previous[interface][0]))*8/10**6/self.period
-            tx=(int(current[interface][8]) - int(self.previous[interface][8]))*8/10**6/self.period
-            rpps=(int(current[interface][1]) - int(self.previous[interface][1]))/10**3/self.period
-            tpps=(int(current[interface][9]) - int(self.previous[interface][9]))/10**3/self.period
+            rx=(current[interface][0] - self.previous[interface][0])*8/10**6/(cts-self.pts)
+            tx=(current[interface][8] - self.previous[interface][8])*8/10**6/(cts-self.pts)
+            rpps=(current[interface][1] - self.previous[interface][1])/10**3/(cts-self.pts)
+            tpps=(current[interface][9] - self.previous[interface][9])/10**3/(cts-self.pts)
             rez[interface]=[tx,tpps,rx,rpps]
         
-        self.previous=current
+        self.previous, self.pts = current, cts
         return rez
 
 stats=ethstats()
@@ -51,4 +54,4 @@ while True:
     time.sleep(stats.period)
     rez=stats.get()
     for interface in rez:
-        print("%10s: TX%8.2f Mbps%5.2fKPPS RX%8.2f Mbps%5.2fKPPS "%tuple([interface]+rez[interface]))
+        print("%10s: TX%9.2f Mbps%8.2f kPPS RX%9.2f Mbps%8.2f kPPS "%tuple([interface]+rez[interface]))
