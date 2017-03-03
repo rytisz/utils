@@ -37,7 +37,6 @@ class ethstats:
 
     def get(self):
         current, cts = self.__read_stats()
-        print (cts-self.pts)
         rez={}
         for interface in current:
             rx=(current[interface][0] - self.previous[interface][0])*8/10**6/(cts-self.pts)
