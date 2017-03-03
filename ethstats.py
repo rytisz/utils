@@ -3,6 +3,7 @@
 from optparse import OptionParser
 import pdb
 import time
+import sys
 
 parser = OptionParser()
 parser.add_option("-n", "--period", dest="PERIOD", default=1,
@@ -53,4 +54,5 @@ while True:
     time.sleep(stats.period)
     rez=stats.get()
     for interface in rez:
-        print("%10s: TX%9.2f Mbps%8.2f kPPS RX%9.2f Mbps%8.2f kPPS "%tuple([interface]+rez[interface]))
+        sys.stdout.write("%10s: TX%9.2f Mbps%8.2f kPPS RX%9.2f Mbps%8.2f kPPS\n"%tuple([interface]+rez[interface]))
+        sys.stdout.flush()
