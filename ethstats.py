@@ -66,5 +66,4 @@ while True:
             sys.stdout.write("%10s: TX%9.2f Mbps%8.2f kPPS RX%9.2f Mbps%8.2f kPPS\n"%tuple([interface]+rez[interface]))
             sys.stdout.flush()
     except KeyboardInterrupt:
-        break 
-
+        break
