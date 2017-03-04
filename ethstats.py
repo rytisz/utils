@@ -1,7 +1,6 @@
 #!/usr/bin/python
 
 from optparse import OptionParser
-import pdb
 import time
 import sys
 
@@ -16,9 +15,18 @@ parser.add_option("-i", "--interface", dest="INTERFACE", default="all",
 class ethstats:
 
     def __init__(self):
-        self.period = int( vars(options)['PERIOD'])
         self.interface = vars(options)['INTERFACE']
-        self.previous, self.pts = self.__read_stats()
+        try:
+            self.period = int( vars(options)['PERIOD'])
+        except ValueError as e:
+            sys.stderr.write("Wrong period n: '%s', n should be integer\n"%vars(options)['PERIOD'])
+            sys.exit(1)
+
+        try:
+            self.previous, self.pts = self.__read_stats()
+        except KeyError as e:
+            sys.stderr.write("Interface %s not found\n"%e)
+            sys.exit(1)
 
     def __read_stats(self):
         d= {}
@@ -51,8 +59,12 @@ class ethstats:
 
 stats=ethstats()
 while True: 
-    time.sleep(stats.period)
-    rez=stats.get()
-    for interface in rez:
-        sys.stdout.write("%10s: TX%9.2f Mbps%8.2f kPPS RX%9.2f Mbps%8.2f kPPS\n"%tuple([interface]+rez[interface]))
-        sys.stdout.flush()
+    try:
+        time.sleep(stats.period)
+        rez=stats.get()
+        for interface in rez:
+            sys.stdout.write("%10s: TX%9.2f Mbps%8.2f kPPS RX%9.2f Mbps%8.2f kPPS\n"%tuple([interface]+rez[interface]))
+            sys.stdout.flush()
+    except KeyboardInterrupt:
+        break 
+
